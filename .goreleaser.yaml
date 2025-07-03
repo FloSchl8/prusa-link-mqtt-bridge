@@ -18,12 +18,10 @@ dockers:
       - "--platform=linux/amd64"
     
 
-releases:
-  - name_template: "{{ .Tag }}"
-    draft: false
-    prerelease: auto
-    # You can customize the release body here, e.g., by including changelog
-    # body: "{{ .ReleaseNotes }}"
+release:
+  name_template: "{{ .Tag }}"
+  draft: false
+  prerelease: auto
 
 checksum:
   name_template: 'checksums.txt'
