@@ -1,6 +1,6 @@
 services:
   prusa-link-mqtt-bridge:
-    image: ghcr.io/FloSchl8/prusa-link-mqtt-bridge:latest
+    image: ghcr.io/floschl8/prusa-link-mqtt-bridge:latest
     restart: on-failure
     environment:
       - PRUSALINK_HOST=${PRUSALINK_HOST}
