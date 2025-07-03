@@ -1,0 +1,39 @@
+# .goreleaser.yaml
+builds:
+  - env:
+      - CGO_ENABLED=0
+    main: ./cmd/prusa-link-mqtt-bridge
+    binary: prusa-link-mqtt-bridge
+    goos:
+      - linux
+    goarch:
+      - amd64
+
+dockers:
+  - image_templates:
+      - "ghcr.io/{{ .Env.GITHUB_REPOSITORY }}:{{ .Version }}"
+    dockerfile: Dockerfile
+    use: buildx
+    build_flag_templates:
+      - "--platform=linux/amd64"
+    
+
+releases:
+  - name_template: "{{ .Tag }}"
+    draft: false
+    prerelease: auto
+    # You can customize the release body here, e.g., by including changelog
+    # body: "{{ .ReleaseNotes }}"
+
+checksum:
+  name_template: 'checksums.txt'
+
+snapshot:
+  name_template: "{{ .Tag }}-next"
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'

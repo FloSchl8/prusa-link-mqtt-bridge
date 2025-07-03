@@ -1,0 +1,26 @@
+services:
+  prusa-link-mqtt-bridge:
+    image: ghcr.io/FloSchl8/prusa-link-mqtt-bridge:latest
+    restart: on-failure
+    environment:
+      - PRUSALINK_HOST=${PRUSALINK_HOST}
+      - PRUSALINK_APIKEY=${PRUSALINK_APIKEY}
+      - MQTT_BROKER=mosquitto
+      - LOG_LEVEL=DEBUG
+      - LOG_FORMAT=text
+    depends_on:
+      mosquitto:
+        condition: service_healthy
+
+  mosquitto:
+    image: eclipse-mosquitto:2
+    restart: unless-stopped
+    ports:
+      - "1883:1883"
+    volumes:
+      - ./mosquitto.conf:/mosquitto/config/mosquitto.conf
+    healthcheck:
+      test: ["CMD", "mosquitto_pub", "-h", "localhost", "-t", "healthcheck", "-m", "ok"]
+      interval: 5s
+      timeout: 2s
+      retries: 5

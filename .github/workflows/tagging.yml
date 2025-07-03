@@ -1,0 +1,42 @@
+name: Auto-Tagging for Patch Release
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  tag:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 # Fetch all history for accurate tag detection
+
+      - name: Get latest tag
+        id: get_latest_tag
+        run: |
+          LATEST_TAG=$(git describe --tags --abbrev=0 || echo "v0.0.0")
+          echo "Latest tag: $LATEST_TAG"
+          echo "latest_tag=$LATEST_TAG" >> $GITHUB_OUTPUT
+
+      - name: Calculate next patch version
+        id: calculate_version
+        run: |
+          CURRENT_VERSION=${{ steps.get_latest_tag.outputs.latest_tag }}
+          # Remove 'v' prefix if present
+          VERSION_NUM=$(echo $CURRENT_VERSION | sed 's/^v//')
+          # Split into major, minor, patch
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$VERSION_NUM"
+          NEXT_PATCH=$((PATCH + 1))
+          NEW_TAG="v$MAJOR.$MINOR.$NEXT_PATCH"
+          echo "New tag: $NEW_TAG"
+          echo "new_tag=$NEW_TAG" >> $GITHUB_OUTPUT
+
+      - name: Create and push new tag
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag ${{ steps.calculate_version.outputs.new_tag }}
+          git push origin ${{ steps.calculate_version.outputs.new_tag }}
