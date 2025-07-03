@@ -17,8 +17,8 @@ builds:
 
 dockers:
   - image_templates:
-      - "ghcr.io/floschl8/prusa-link-mqtt-bridge:{{ .Version }}-{{ .Runtime.Goos }}-{{ .Runtime.Goarch }}"
-      - "ghcr.io/floschl8/prusa-link-mqtt-bridge:latest"
+      - "ghcr.io/floschl8/prusa-link-mqtt-bridge:{{ .Tag }}-amd64"
+      - "ghcr.io/floschl8/prusa-link-mqtt-bridge:latest-amd64"
     goarch: amd64
     dockerfile: Dockerfile
     use: buildx
@@ -27,10 +27,11 @@ dockers:
       - "--label=org.opencontainers.image.title={{.ProjectName}}"
       - "--label=org.opencontainers.image.revision={{.FullCommit}}"
       - "--label=org.opencontainers.image.version={{.Version}}"
+      - "--label=org.opencontainers.image.source={{.GitURL}}"
       - "--platform=linux/amd64"
   - image_templates:
-      - "ghcr.io/floschl8/prusa-link-mqtt-bridge:{{ .Version }}-{{ .Runtime.Goos }}-{{ .Runtime.Goarch }}"
-      - "ghcr.io/floschl8/prusa-link-mqtt-bridge:latest"
+      - "ghcr.io/floschl8/prusa-link-mqtt-bridge:{{ .Tag }}-arm64"
+      - "ghcr.io/floschl8/prusa-link-mqtt-bridge:latest-arm64"
     goarch: arm64
     dockerfile: Dockerfile
     use: buildx
@@ -39,7 +40,19 @@ dockers:
       - "--label=org.opencontainers.image.title={{.ProjectName}}"
       - "--label=org.opencontainers.image.revision={{.FullCommit}}"
       - "--label=org.opencontainers.image.version={{.Version}}"
+      - "--label=org.opencontainers.image.source={{.GitURL}}"
       - "--platform=linux/arm64"
+
+docker_manifests:
+  - name_template: "ghcr.io/floschl8/prusa-link-mqtt-bridge:{{ .Tag }}"
+    image_templates:
+      - "ghcr.io/floschl8/prusa-link-mqtt-bridge:{{ .Tag }}-arm64"
+      - "ghcr.io/floschl8/prusa-link-mqtt-bridge:{{ .Tag }}-amd64"
+  - name_template: "ghcr.io/floschl8/prusa-link-mqtt-bridge:latest"
+    image_templates:
+      - "ghcr.io/floschl8/prusa-link-mqtt-bridge:latest-arm64"
+      - "ghcr.io/floschl8/prusa-link-mqtt-bridge:latest-amd64"
+
 release:
   name_template: "{{ .Tag }}"
   draft: false
