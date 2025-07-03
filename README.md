@@ -1,6 +1,7 @@
 # PrusaLink MQTT Bridge
 
 [![Go Report Card](https://goreportcard.com/badge/github.com/florianschlund/prusa-link-mqtt-bridge)](https://goreportcard.com/report/github.com/florianschlund/prusa-link-mqtt-bridge)
+[![CI Status](https://github.com/florianschlund/prusa-link-mqtt-bridge/actions/workflows/ci.yml/badge.svg)](https://github.com/florianschlund/prusa-link-mqtt-bridge/actions/workflows/ci.yml)
 
 This application acts as a bridge between a PrusaLink-enabled 3D printer and an MQTT broker. It periodically fetches the printer's status via the PrusaLink API and publishes it to a specified MQTT topic.
 
@@ -110,8 +111,10 @@ The bridge will start, connect to the included Mosquitto broker, and begin publi
 To run the unit tests and see the coverage report, use the following command:
 
 ```bash
-go test -v -cover ./...
+go test -v -coverprofile=coverage.out ./...
 ```
+
+The detailed code coverage report can be found in the CI workflow logs under the "Show Coverage Summary" step.
 
 ## MQTT Data
 
