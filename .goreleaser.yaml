@@ -1,4 +1,7 @@
 # .goreleaser.yaml
+
+version: 2
+
 builds:
   - env:
       - CGO_ENABLED=0
@@ -15,8 +18,6 @@ builds:
 dockers:
   - image_templates:
       - "ghcr.io/floschl8/prusa-link-mqtt-bridge:{{ .Version }}-{{ .Runtime.Goos }}-{{ .Runtime.Goarch }}"
-      - "ghcr.io/floschl8/prusa-link-mqtt-bridge:{{ .Major }}-{{ .Runtime.Goos }}-{{ .Runtime.Goarch }}"
-      - "ghcr.io/floschl8/prusa-link-mqtt-bridge:{{ .Major }}.{{ .Minor }}-{{ .Runtime.Goos }}-{{ .Runtime.Goarch }}"
       - "ghcr.io/floschl8/prusa-link-mqtt-bridge:latest"
     goarch: amd64
     dockerfile: Dockerfile
@@ -29,13 +30,16 @@ dockers:
       - "--platform=linux/amd64"
   - image_templates:
       - "ghcr.io/floschl8/prusa-link-mqtt-bridge:{{ .Version }}-{{ .Runtime.Goos }}-{{ .Runtime.Goarch }}"
-      - "ghcr.io/floschl8/prusa-link-mqtt-bridge:{{ .Major }}-{{ .Runtime.Goos }}-{{ .Runtime.Goarch }}"
-      - "ghcr.io/floschl8/prusa-link-mqtt-bridge:{{ .Major }}.{{ .Minor }}-{{ .Runtime.Goos }}-{{ .Runtime.Goarch }}"
       - "ghcr.io/floschl8/prusa-link-mqtt-bridge:latest"
     goarch: arm64
     dockerfile: Dockerfile
     use: buildx
-
+    build_flag_templates:
+      - "--label=org.opencontainers.image.created={{.Date}}"
+      - "--label=org.opencontainers.image.title={{.ProjectName}}"
+      - "--label=org.opencontainers.image.revision={{.FullCommit}}"
+      - "--label=org.opencontainers.image.version={{.Version}}"
+      - "--platform=linux/arm64"
 release:
   name_template: "{{ .Tag }}"
   draft: false
@@ -45,7 +49,7 @@ checksum:
   name_template: 'checksums.txt'
 
 snapshot:
-  name_template: "{{ .Tag }}-next"
+  version_template: "{{ .Tag }}-next"
 
 changelog:
   sort: asc
