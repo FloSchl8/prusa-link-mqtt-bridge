@@ -15,7 +15,7 @@ func TestGetStatus(t *testing.T) {
 			assert.Equal(t, "/api/v1/status", r.URL.Path)
 			assert.Equal(t, "test-api-key", r.Header.Get("X-Api-Key"))
 			w.WriteHeader(http.StatusOK)
-			fmt.Fprintln(w, `{"state_text": "Printing", "temp_nozzle": 215, "target_nozzle": 215, "temp_bed": 85, "target_bed": 85, "progress": 50.5}`)
+			fmt.Fprintln(w, `{"printer":{"state":"Printing","temp_nozzle":215,"target_nozzle":215,"temp_bed":85,"target_bed":85,"axis_z":10.5,"flow":100,"speed":100,"fan_hotend":255,"fan_print":255},"job":{"progress":50.5,"time_remaining":120,"time_printing":60}}`)
 		}))
 		defer server.Close()
 

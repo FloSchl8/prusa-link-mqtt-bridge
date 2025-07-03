@@ -2,6 +2,7 @@ package config
 
 import (
 	"context"
+	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -32,10 +33,22 @@ func TestLoadConfig(t *testing.T) {
 	})
 
 	t.Run("returns error if required variables are missing", func(t *testing.T) {
+		// Store original values
+		originalPrusaLinkHost := os.Getenv("PRUSALINK_HOST")
+		originalPrusaLinkApiKey := os.Getenv("PRUSALINK_APIKEY")
+		originalMqttBroker := os.Getenv("MQTT_BROKER")
+
 		// Unset required variables
-		t.Setenv("PRUSALINK_HOST", "")
-		t.Setenv("PRUSALINK_APIKEY", "")
-		t.Setenv("MQTT_BROKER", "")
+		os.Unsetenv("PRUSALINK_HOST")
+		os.Unsetenv("PRUSALINK_APIKEY")
+		os.Unsetenv("MQTT_BROKER")
+
+		// Restore original values after test
+		defer func() {
+			os.Setenv("PRUSALINK_HOST", originalPrusaLinkHost)
+			os.Setenv("PRUSALINK_APIKEY", originalPrusaLinkApiKey)
+			os.Setenv("MQTT_BROKER", originalMqttBroker)
+		}()
 
 		_, err := LoadConfig(context.Background())
 		assert.Error(t, err)
