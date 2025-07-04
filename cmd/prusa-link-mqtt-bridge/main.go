@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log/slog"
 	"os"
 	"strings"
@@ -46,25 +47,43 @@ func main() {
 
 	slog.Info("Configuration loaded successfully")
 
-	mqttClient, err := mqtt.NewMqttClient(cfg.Mqtt.Broker, cfg.Mqtt.Username, cfg.Mqtt.Password, cfg.Mqtt.Port)
+	prusaClient := prusalink.NewClient(cfg.PrusaLink.Host, cfg.PrusaLink.ApiKey)
+	info, err := prusaClient.GetInfo()
+	if err != nil {
+		slog.Error("Failed to get printer info", "error", err)
+		os.Exit(1)
+	}
+	slog.Info("Got printer info", "serial_number", info.SerialNumber)
+
+	availabilityTopic := fmt.Sprintf("%s/%s/status", cfg.Mqtt.Topic, info.SerialNumber)
+	statusTopic := fmt.Sprintf("%s/%s/status", cfg.Mqtt.Topic, info.SerialNumber)
+
+	mqttClient, err := mqtt.NewMqttClient(cfg.Mqtt.Broker, cfg.Mqtt.Username, cfg.Mqtt.Password, cfg.Mqtt.Port, availabilityTopic)
 	if err != nil {
 		slog.Error("Failed to connect to MQTT broker", "error", err)
 		os.Exit(1)
 	}
 	slog.Info("Connected to MQTT broker")
 
+	if err := mqtt.Publish(mqttClient, availabilityTopic, "online"); err != nil {
+		slog.Error("Failed to publish online status", "error", err)
+	}
+
 	ticker := time.NewTicker(time.Duration(cfg.PrusaLink.Interval) * time.Second)
 	defer ticker.Stop()
 
 	for range ticker.C {
 		slog.Info("Ticker ticked, fetching status...")
-		status, err := prusalink.GetStatus(cfg.PrusaLink.Host, cfg.PrusaLink.ApiKey)
+		status, err := prusaClient.GetStatus()
 		if err != nil {
 			slog.Error("Failed to get printer status", "error", err)
+			if err := mqtt.Publish(mqttClient, availabilityTopic, "offline"); err != nil {
+				slog.Error("Failed to publish offline status", "error", err)
+			}
 			continue
 		}
 
-		if err := mqtt.PublishStatus(mqttClient, cfg.Mqtt.Topic, status); err != nil {
+		if err := mqtt.PublishStatus(mqttClient, statusTopic, status); err != nil {
 			slog.Error("Failed to publish status to MQTT", "error", err)
 		}
 	}
