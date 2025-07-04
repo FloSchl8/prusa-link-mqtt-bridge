@@ -121,7 +121,11 @@ The detailed code coverage report can be found in the CI workflow logs under the
 
 ## MQTT Data
 
-The application publishes a JSON payload to the configured MQTT topic. Here is an example of the data:
+The application publishes a JSON payload to the configured MQTT topic. The full MQTT topic path will include the printer's serial number to ensure uniqueness, formatted as `MQTT_TOPIC/SERIAL_NUMBER/status`. For example, if `MQTT_TOPIC` is `prusa-link` and the printer's serial number is `XYZ123`, the status will be published to `prusa-link/XYZ123/status`.
+
+Additionally, the application publishes an availability status to `MQTT_AVAILABILITY_TOPIC/SERIAL_NUMBER/availability`. It sends `online` when the bridge starts and `offline` when it disconnects.
+
+Here is an example of the status data payload:
 
 ```json
 {
