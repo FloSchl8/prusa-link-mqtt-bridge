@@ -19,7 +19,8 @@ func TestGetStatus(t *testing.T) {
 		}))
 		defer server.Close()
 
-		status, err := GetStatus(server.URL[7:], "test-api-key")
+		client := NewClient(server.URL[7:], "test-api-key")
+		status, err := client.GetStatus()
 		assert.NoError(t, err)
 		assert.NotNil(t, status)
 		assert.Equal(t, "Printing", status.StateText)
@@ -33,7 +34,19 @@ func TestGetStatus(t *testing.T) {
 		}))
 		defer server.Close()
 
-		_, err := GetStatus(server.URL[7:], "wrong-api-key")
+		client := NewClient(server.URL[7:], "wrong-api-key")
+		_, err := client.GetStatus()
+		assert.Error(t, err)
+	})
+
+	t.Run("server error", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.WriteHeader(http.StatusInternalServerError)
+		}))
+		defer server.Close()
+
+		client := NewClient(server.URL[7:], "test-api-key")
+		_, err := client.GetStatus()
 		assert.Error(t, err)
 	})
 }

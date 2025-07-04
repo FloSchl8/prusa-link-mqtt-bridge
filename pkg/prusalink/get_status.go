@@ -3,10 +3,6 @@ package prusalink
 import (
 	"encoding/json"
 	"fmt"
-	"io"
-	"log/slog"
-	"net/http"
-	"time"
 )
 
 // APIResponse matches the nested structure of the PrusaLink API spec.
@@ -53,35 +49,10 @@ type PrinterStatus struct {
 	PrintTime     int     `json:"print_time"`
 }
 
-func GetStatus(host, apiKey string) (*PrinterStatus, error) {
-	client := &http.Client{
-		Timeout: 5 * time.Second,
-	}
-	slog.Debug("Attempting to get status from PrusaLink", "host", host)
-	req, err := http.NewRequest("GET", fmt.Sprintf("http://%s/api/v1/status", host), nil)
+func (c *Client) GetStatus() (*PrinterStatus, error) {
+	body, err := c.Get("status")
 	if err != nil {
 		return nil, err
-	}
-	req.Header.Set("X-Api-Key", apiKey)
-
-	resp, err := client.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, fmt.Errorf("failed to read response body: %w", err)
-	}
-
-	slog.Debug("Received response from PrusaLink API",
-		"status_code", resp.StatusCode,
-		"body", string(body),
-	)
-
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
 	}
 
 	var apiResponse APIResponse

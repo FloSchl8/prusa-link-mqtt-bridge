@@ -43,6 +43,9 @@ The application is configured exclusively via environment variables. The library
 | `LOG_LEVEL`          | No       | `INFO`       | Log level (`DEBUG`, `INFO`, `WARN`, `ERROR`) |
 | `LOG_FORMAT`         | No       | `text`       | Log format (`text` or `json`)             |
 
+## Important Notes
+
+- **Printer Availability:** The PrusaLink-enabled printer must be online and accessible when the bridge starts. The application fetches the printer's serial number on startup to use it in the MQTT topic, ensuring a unique identifier for each printer. If the printer is not available, the application will exit with an error.
 
 ## Usage
 

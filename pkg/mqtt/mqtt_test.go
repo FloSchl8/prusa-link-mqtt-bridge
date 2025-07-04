@@ -9,6 +9,6 @@ import (
 func TestNewMqttClient(t *testing.T) {
 	// This is a basic test to ensure the client can be created.
 	// A full integration test would require a running MQTT broker.
-	_, err := NewMqttClient("localhost", "user", "pass", 1883)
+	_, err := NewMqttClient("localhost", "user", "pass", 1883, "prusa-link/1234/status")
 	assert.Error(t, err) // Expect an error because no broker is running
 }
