@@ -14,7 +14,7 @@ func TestGetInfo(t *testing.T) {
 		assert.Equal(t, "/api/v1/info", r.URL.Path)
 		assert.Equal(t, "test-api-key", r.Header.Get("X-Api-Key"))
 		w.WriteHeader(http.StatusOK)
-		fmt.Fprintln(w, `{"serial_number":"123456789"}`)
+		fmt.Fprintln(w, `{"serial":"123456789"}`)
 	}))
 	defer server.Close()
 

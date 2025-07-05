@@ -4,7 +4,7 @@ import "encoding/json"
 
 // APIInfoResponse matches the structure of the /api/v1/info endpoint.
 type APIInfoResponse struct {
-	SerialNumber string `json:"serial_number"`
+	SerialNumber string `json:"serial"`
 }
 
 func (c *Client) GetInfo() (*APIInfoResponse, error) {
