@@ -68,6 +68,7 @@ func main() {
 	if err := mqtt.Publish(mqttClient, availabilityTopic, "online"); err != nil {
 		slog.Error("Failed to publish online status", "error", err)
 	}
+	defer mqtt.Publish(mqttClient, availabilityTopic, "offline")
 
 	ticker := time.NewTicker(time.Duration(cfg.PrusaLink.Interval) * time.Second)
 	defer ticker.Stop()
