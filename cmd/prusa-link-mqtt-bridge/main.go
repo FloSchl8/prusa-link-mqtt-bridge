@@ -53,9 +53,9 @@ func main() {
 		slog.Error("Failed to get printer info", "error", err)
 		os.Exit(1)
 	}
-	slog.Info("Got printer info", "serial_number", info.SerialNumber)
+	slog.Info("Got printer info", "serial", info.SerialNumber)
 
-	availabilityTopic := fmt.Sprintf("%s/%s/status", cfg.Mqtt.Topic, info.SerialNumber)
+	availabilityTopic := fmt.Sprintf("%s/%s/availability", cfg.Mqtt.Topic, info.SerialNumber)
 	statusTopic := fmt.Sprintf("%s/%s/status", cfg.Mqtt.Topic, info.SerialNumber)
 
 	mqttClient, err := mqtt.NewMqttClient(cfg.Mqtt.Broker, cfg.Mqtt.Username, cfg.Mqtt.Password, cfg.Mqtt.Port, availabilityTopic)
@@ -68,6 +68,7 @@ func main() {
 	if err := mqtt.Publish(mqttClient, availabilityTopic, "online"); err != nil {
 		slog.Error("Failed to publish online status", "error", err)
 	}
+	defer mqtt.Publish(mqttClient, availabilityTopic, "offline")
 
 	ticker := time.NewTicker(time.Duration(cfg.PrusaLink.Interval) * time.Second)
 	defer ticker.Stop()
@@ -81,6 +82,10 @@ func main() {
 				slog.Error("Failed to publish offline status", "error", err)
 			}
 			continue
+		}
+
+		if err := mqtt.Publish(mqttClient, availabilityTopic, "online"); err != nil {
+			slog.Error("Failed to publish online status", "error", err)
 		}
 
 		if err := mqtt.PublishStatus(mqttClient, statusTopic, status); err != nil {
